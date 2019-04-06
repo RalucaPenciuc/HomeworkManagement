@@ -1,30 +1,37 @@
 package com.company.console;
 
-import com.company.domain.Student;
-import com.company.domain.Tema;
+import com.company.domain.*;
 import com.company.service.Service;
+import com.company.service.ServiceNota;
 
 import java.util.Scanner;
 
 public class UI {
     private Service service;
+    private ServiceNota serviceNota;
 
-    public UI(Service service) {
+    public UI(Service service, ServiceNota serviceNota) {
         this.service = service;
+        this.serviceNota = serviceNota;
     }
 
     public void printMenu() {
-        System.out.println("1. Afiseaza toti studentii.");
-        System.out.println("2. Adauga un nou student.");
-        System.out.println("3. Sterge un student existent.");
+        System.out.println("11. Afiseaza toti studentii.");
+        System.out.println("12. Afiseaza toate temele.");
+        System.out.println("13. Afiseaza toate notele.");
+
+        System.out.println("21. Adauga un nou student.");
+        System.out.println("22. Adauga o tema noua.");
+        System.out.println("23. Adauga o nota unui student pentru o tema.");
+
+        System.out.println("31. Sterge un student existent.");
+        System.out.println("32. Sterge o tema existenta.");
+
         System.out.println("4. Actualizeaza datele unui student.");
 
-        System.out.println("5. Afiseaza toate temele.");
-        System.out.println("6. Adauga o tema noua.");
-        System.out.println("7. Sterge o tema existenta.");
-        System.out.println("8. Prelungeste deadline-ul unei teme.");
+        System.out.println("5. Prelungeste deadline-ul unei teme.");
 
-        System.out.println("9. EXIT \n");
+        System.out.println("0. EXIT \n");
     }
 
     public void uiPrintAllStudents() {
@@ -36,6 +43,12 @@ public class UI {
     public void uiPrintAllTeme() {
         for(Tema tema : service.findAllTeme()) {
             System.out.println(tema);
+        }
+    }
+
+    public void uiPrintAllNote() {
+        for(Nota note : serviceNota.findAllNote()) {
+            System.out.println(note);
         }
     }
 
@@ -56,40 +69,6 @@ public class UI {
         }
         else {
             System.out.println("Student existent sau invalid! \n");
-        }
-    }
-
-    public void uiDeleteStudent() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Introduceti ID-ul studentului: ");
-        String id = scanner.nextLine();
-
-        if (service.deleteStudent(id) != 0) {
-            System.out.println("Student sters cu succes! \n");
-        }
-        else {
-            System.out.println("Studentul nu exista! \n");
-        }
-    }
-
-    public void uiUpdateStudent() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Introduceti ID-ul studentului: ");
-        String id = scanner.nextLine();
-
-        System.out.println("Introduceti noul nume al studentului: ");
-        String numeNou = scanner.nextLine();
-
-        System.out.println("Introduceti noua grupa a studentului: ");
-        int grupaNoua = scanner.nextInt();
-
-        if (service.updateStudent(id, numeNou, grupaNoua) != 0) {
-            System.out.println("Student actualizat cu succes! \n");
-        }
-        else {
-            System.out.println("Studentul nu exista! \n");
         }
     }
 
@@ -116,6 +95,53 @@ public class UI {
         }
     }
 
+    public void uiSaveNota() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Introduceti ID-ul studentului: ");
+        String idStudent = scanner.nextLine();
+
+        System.out.println("Introduceti ID-ul temei: ");
+        String idTema = scanner.nextLine();
+
+        System.out.println("Introduceti valoarea notei: ");
+        String linie = scanner.nextLine();
+        double valNota = Double.parseDouble(linie);
+
+        System.out.println("Introduceti saptamana de predare a temei: ");
+        String linie2 = scanner.nextLine();
+        int predata = Integer.parseInt(linie2);
+
+        System.out.println("Dati un feedback temei: ");
+        String feedback = scanner.nextLine();
+
+        int result = serviceNota.saveNota(idStudent, idTema, valNota, predata, feedback);
+        if (result == 1) {
+            serviceNota.createStudentFile(idStudent, idTema);
+            System.out.println("Nota adaugata cu succes! \n");
+        }
+        else if (result == 0) {
+            System.out.println("Nota existenta! \n");
+        }
+        else {
+            System.out.println("Student sau tema inexistenta! \n");
+        }
+    }
+
+    public void uiDeleteStudent() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Introduceti ID-ul studentului: ");
+        String id = scanner.nextLine();
+
+        if (service.deleteStudent(id) != 0) {
+            System.out.println("Student sters cu succes! \n");
+        }
+        else {
+            System.out.println("Studentul nu exista! \n");
+        }
+    }
+
     public void uiDeleteTema() {
         Scanner scanner = new Scanner(System.in);
 
@@ -127,6 +153,26 @@ public class UI {
         }
         else {
             System.out.println("Tema nu exista! \n");
+        }
+    }
+
+    public void uiUpdateStudent() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Introduceti ID-ul studentului: ");
+        String id = scanner.nextLine();
+
+        System.out.println("Introduceti noul nume al studentului: ");
+        String numeNou = scanner.nextLine();
+
+        System.out.println("Introduceti noua grupa a studentului: ");
+        int grupaNoua = scanner.nextInt();
+
+        if (service.updateStudent(id, numeNou, grupaNoua) != 0) {
+            System.out.println("Student actualizat cu succes! \n");
+        }
+        else {
+            System.out.println("Studentul nu exista! \n");
         }
     }
 
@@ -158,31 +204,37 @@ public class UI {
             cmd = scanner.nextInt();
 
             switch(cmd) {
-                case 1:
+                case 11:
                     uiPrintAllStudents();
                     break;
-                case 2:
+                case 12:
+                    uiPrintAllTeme();
+                    break;
+                case 13:
+                    uiPrintAllNote();
+                    break;
+                case 21:
                     uiSaveStudent();
                     break;
-                case 3:
+                case 22:
+                    uiSaveTema();
+                    break;
+                case 23:
+                    uiSaveNota();
+                    break;
+                case 31:
                     uiDeleteStudent();
+                    break;
+                case 32:
+                    uiDeleteTema();
                     break;
                 case 4:
                     uiUpdateStudent();
                     break;
                 case 5:
-                    uiPrintAllTeme();
-                    break;
-                case 6:
-                    uiSaveTema();
-                    break;
-                case 7:
-                    uiDeleteTema();
-                    break;
-                case 8:
                     uiExtendDeadline();
                     break;
-                case 9:
+                case 0:
                     cmd = 0;
                     break;
             }

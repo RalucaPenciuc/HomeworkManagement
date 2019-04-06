@@ -1,24 +1,26 @@
 package com.company.repository;
 
-import com.company.domain.HasID;
-import com.company.validation.ValidationException;
-import com.company.validation.Validator;
+import com.company.domain.*;
+import com.company.validation.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractCRUDRepository<ID, E extends HasID<ID>> implements CRUDRepository<ID, E> {
+public abstract class AbstractCRUDRepository<ID, E extends HasID<ID>> implements CRUDRepository<ID, E>{
     Map<ID, E> entities;
     Validator<E> validator;
 
     public AbstractCRUDRepository(Validator validator) {
-        entities = new HashMap<>();
+        entities = new HashMap<ID, E>();
         this.validator = validator;
     }
 
     @Override
     public E findOne(ID id) {
-        if (id == null) throw new IllegalArgumentException("ID-ul nu poate fi null! \n");
+        if (id == null) {
+            throw new IllegalArgumentException("ID-ul nu poate fi null! \n");
+        }
         else {
             return entities.get(id);
         }
@@ -29,19 +31,15 @@ public abstract class AbstractCRUDRepository<ID, E extends HasID<ID>> implements
 
     @Override
     public E save(E entity) throws ValidationException {
-        try {
-            validator.validate(entity);
-            return entities.put(entity.getID(), entity);
-        }
-        catch (ValidationException ve) {
-            System.out.println("Entitatea nu este valida! \n");
-            return null;
-        }
+        validator.validate(entity);
+        return entities.putIfAbsent(entity.getID(), entity);
     }
 
     @Override
     public E delete(ID id) {
-        if (id == null) throw new IllegalArgumentException("ID-ul nu poate fi nul! \n");
+        if (id == null) {
+            throw new IllegalArgumentException("ID-ul nu poate fi nul! \n");
+        }
         else {
             return entities.remove(id);
         }
@@ -49,18 +47,7 @@ public abstract class AbstractCRUDRepository<ID, E extends HasID<ID>> implements
 
     @Override
     public E update(E entity) {
-        try {
-            validator.validate(entity);
-            if (findOne(entity.getID()) == null) {
-                return null;
-            }
-            else {
-                return entities.replace(entity.getID(), entity);
-            }
-        }
-        catch (ValidationException ve) {
-            System.out.println("Entitatea nu este valida! \n");
-            return null;
-        }
+        validator.validate(entity);
+        return entities.replace(entity.getID(), entity);
     }
 }

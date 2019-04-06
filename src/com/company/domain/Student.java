@@ -19,17 +19,13 @@ public class Student implements HasID<String> {
     @Override
     public void setID(String idStudent) { this.idStudent = idStudent; }
 
-    public String getNume() {
-        return nume;
-    }
+    public String getNume() { return nume; }
 
     public void setNume(String nume) {
         this.nume = nume;
     }
 
-    public int getGrupa() {
-        return grupa;
-    }
+    public int getGrupa() { return grupa; }
 
     public void setGrupa(int grupa) {
         this.grupa = grupa;
@@ -37,7 +33,7 @@ public class Student implements HasID<String> {
 
     @Override
     public String toString() {
-        return "Student{" + "idStudent=" + idStudent + ", nume='" + nume + '\'' + ", grupa=" + grupa + '\'' + '}';
+        return "idStudent=" + idStudent + ";nume=" + nume + ";grupa=" + grupa + "\n";
     }
 
     @Override

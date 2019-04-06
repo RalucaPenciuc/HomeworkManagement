@@ -40,11 +40,10 @@ public abstract class AbstractFileRepository<ID, E extends HasID<ID>> extends Ab
     }
 
     @Override
-    public E update(E new_entity) {
-        E result = super.update(new_entity);
+    public E update(E newEntity) {
+        E result = super.update(newEntity);
         writeToFileAll();
 
         return result;
     }
 }
-

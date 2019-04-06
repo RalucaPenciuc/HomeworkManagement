@@ -1,32 +1,44 @@
 package com.company.service;
 
-import com.company.domain.Student;
-import com.company.domain.Tema;
-import com.company.repository.StudentFileRepository;
-import com.company.repository.TemaFileRepository;
+import com.company.domain.*;
+import com.company.repository.*;
+import com.company.view.*;
 
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 
-public class Service {
-    private StudentFileRepository studentFileRepo;
-    private TemaFileRepository temaFileRepo;
+public class Service implements Observable<StudentEvent> {
+    private StudentXMLRepository studentXmlRepo;
+    private TemaXMLRepository temaXmlRepo;
+    private ArrayList<Observer<StudentEvent>> observer;
 
-    public Service(StudentFileRepository studentFileRepo, TemaFileRepository temaFileRepo) {
-        this.studentFileRepo = studentFileRepo;
-        this.temaFileRepo = temaFileRepo;
+    public Service(StudentXMLRepository studentXmlRepo, TemaXMLRepository temaXmlRepo, NotaXMLRepository notaXmlRepo) {
+        this.studentXmlRepo = studentXmlRepo;
+        this.temaXmlRepo = temaXmlRepo;
+        this.observer = new ArrayList<>();
     }
 
-    public Iterable<Student> findAllStudents() { return studentFileRepo.findAll(); }
+    @Override
+    public void addObserver(Observer<StudentEvent> e) { observer.add(e); }
 
-    public Iterable<Tema> findAllTeme() { return temaFileRepo.findAll(); }
+    @Override
+    public void removeObserver(Observer<StudentEvent> e) { observer.remove(e); }
+
+    @Override
+    public void notifyObserver(StudentEvent studentEvent) { observer.forEach(obs -> obs.update(studentEvent)); }
+
+    public Iterable<Student> findAllStudents() { return studentXmlRepo.findAll(); }
+
+    public Iterable<Tema> findAllTeme() { return temaXmlRepo.findAll(); }
 
     public int saveStudent(String id, String nume, int grupa) {
         Student student = new Student(id, nume, grupa);
-        Student result = studentFileRepo.save(student);
-
+        Student result = studentXmlRepo.save(student);
         if (result == null) {
+            notifyObserver(new StudentEvent(null, student, ChangeEventType.ADD));
             return 1;
         }
         return 0;
@@ -34,7 +46,7 @@ public class Service {
 
     public int saveTema(String id, String descriere, int deadline, int startline) {
         Tema tema = new Tema(id, descriere, deadline, startline);
-        Tema result = temaFileRepo.save(tema);
+        Tema result = temaXmlRepo.save(tema);
 
         if (result == null) {
             return 1;
@@ -43,7 +55,8 @@ public class Service {
     }
 
     public int deleteStudent(String id) {
-        Student result = studentFileRepo.delete(id);
+        Student result = studentXmlRepo.delete(id);
+        notifyObserver(new StudentEvent(null, result, ChangeEventType.DELETE));
 
         if (result == null) {
             return 0;
@@ -52,7 +65,7 @@ public class Service {
     }
 
     public int deleteTema(String id) {
-        Tema result = temaFileRepo.delete(id);
+        Tema result = temaXmlRepo.delete(id);
 
         if (result == null) {
             return 0;
@@ -62,7 +75,9 @@ public class Service {
 
     public int updateStudent(String id, String numeNou, int grupaNoua) {
         Student studentNou = new Student(id, numeNou, grupaNoua);
-        Student result = studentFileRepo.update(studentNou);
+        Student studentOld = studentXmlRepo.findOne(id);
+        Student result = studentXmlRepo.update(studentNou);
+        notifyObserver(new StudentEvent(studentOld, studentNou, ChangeEventType.UPDATE));
 
         if (result == null) {
             return 0;
@@ -72,7 +87,7 @@ public class Service {
 
     public int updateTema(String id, String descriereNoua, int deadlineNou, int startlineNou) {
         Tema temaNoua = new Tema(id, descriereNoua, deadlineNou, startlineNou);
-        Tema result = temaFileRepo.update(temaNoua);
+        Tema result = temaXmlRepo.update(temaNoua);
 
         if (result == null) {
             return 0;
@@ -81,7 +96,7 @@ public class Service {
     }
 
     public int extendDeadline(String id, int noWeeks) {
-        Tema tema = temaFileRepo.findOne(id);
+        Tema tema = temaXmlRepo.findOne(id);
 
         if (tema != null) {
             LocalDate date = LocalDate.now();

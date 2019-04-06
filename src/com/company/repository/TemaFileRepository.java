@@ -1,14 +1,9 @@
 package com.company.repository;
 
 import com.company.domain.Tema;
-import com.company.repository.AbstractFileRepository;
-import com.company.validation.ValidationException;
-import com.company.validation.Validator;
+import com.company.validation.*;
 
 import java.io.*;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.MatchResult;
 import java.util.stream.Collectors;
 
 public class TemaFileRepository extends AbstractFileRepository<String, Tema> {

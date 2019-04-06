@@ -1,6 +1,6 @@
 package com.company.repository;
 
-import com.company.validation.ValidationException;
+import com.company.validation.*;
 
 public interface CRUDRepository<ID, E> {
     /**

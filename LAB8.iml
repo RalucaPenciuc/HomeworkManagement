@@ -17,5 +17,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="org.controlsfx:controlsfx:8.40.141" level="project" />
   </component>
 </module>
