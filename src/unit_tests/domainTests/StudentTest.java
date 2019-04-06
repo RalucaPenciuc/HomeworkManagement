@@ -1,6 +1,5 @@
 package unit_tests.domainTests;
 
-
 import com.company.domain.Student;
 
 import static org.junit.Assert.*;
